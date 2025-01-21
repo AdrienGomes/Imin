@@ -1,0 +1,47 @@
+services:
+  iminbackend:
+    restart: unless-stopped
+    image: ${DOCKER_REGISTRY-}iminbackend
+    build:
+      context: .
+      dockerfile: IMINBackend/Dockerfile
+    environment:
+      Postgres__Username: run/secrets/postgres_username
+      Postgres__Password: run/secrets/postgres_password
+      Postgres__DbName: run/secrets/postgres_db_name
+    secrets:
+        - postgres_username
+        - postgres_password
+        - postgres_db_name
+    depends_on:
+        postgres:
+            condition: service_healthy
+  postgres:
+    image: postgres:14.1-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: /run/secrets/postgres_username
+      POSTGRES_PASSWORD: /run/secrets/postgres_password
+      POSTGRES_DB: /run/secrets/postgres_db_name
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+        test: ["CMD-SHELL", "pg_isready"]
+        timeout: 5s
+        interval: 10s
+        retries: 30
+    secrets:
+        - postgres_username
+        - postgres_password
+        - postgres_db_name
+secrets:
+  postgres_username:
+    environment: ENV_POSTGRES_USERNAME
+  postgres_password: 
+    environment: ENV_POSTGRES_PASSWORD
+  postgres_db_name: 
+    environment: ENV_POSTGRES_DBNAME
+volumes:
+  db-data:
