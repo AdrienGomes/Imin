@@ -1,3 +1,5 @@
+using IMINBackend.Contracts.Services;
+
 ILogger<Program>? _logger = null;
 try
 {
@@ -10,6 +12,7 @@ try
     // OpenAPI
     builder.Services.AddOpenApi();
 
+    // configure postgres settings
     builder.Configuration.ConfigurePostgresSettings(builder.Environment.IsDevelopment());
     builder.Services.Configure<string>(builder.Configuration.GetSection("PostgresSettings.SectionName"));
 
@@ -21,6 +24,10 @@ try
     builder.Services.AddSwaggerGen();
 
     var app = builder.Build();
+
+    // execute bootstrap service
+    foreach (var bootstrap in app.Services.GetServices<IAppBootstrapService>())
+        await bootstrap.DoAsync();
 
     // Configure the HTTP request pipeline.
 
@@ -57,7 +64,12 @@ static class ProgramExtension
     /// </summary>
     public static ConfigurationManager ConfigurePostgresSettings(this ConfigurationManager builder, bool isDev)
     {
+        // collect db secrets from docker secrets folder
+        //
+        // This file is optionnal in dev env, as we could mannually override secret from user secrets
         builder.AddKeyPerFile("/run/secrets", isDev);
+
+        // configure db settings into IConfiguration
         var secretDbName = builder.GetValue<string>("postgres_db_name");
         if (secretDbName != null)
             builder.GetSection("Postgres")["DbName"] = secretDbName;
