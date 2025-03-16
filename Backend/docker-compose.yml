@@ -6,42 +6,85 @@ services:
       context: .
       dockerfile: IMINBackend/Dockerfile
     environment:
-      Postgres__Username: run/secrets/postgres_username
-      Postgres__Password: run/secrets/postgres_password
-      Postgres__DbName: run/secrets/postgres_db_name
-    secrets:
-        - postgres_username
-        - postgres_password
-        - postgres_db_name
+      Postgres__Username: ${ENV_SERVER_DB_USERNAME}
+      Postgres__Password: ${ENV_SERVER_DB_PASSWORD}
+      Postgres__DbName: ${ENV_SERVER_DB_DBNAME}
     depends_on:
-        postgres:
-            condition: service_healthy
-  postgres:
+      postgres_backend:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    networks:
+      - external_net
+
+  postgres_backend:
     image: postgres:14.1-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER_FILE: /run/secrets/postgres_username
-      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
-      POSTGRES_DB_FILE: /run/secrets/postgres_db_name
+      POSTGRES_USER: ${ENV_SERVER_DB_USERNAME}
+      POSTGRES_PASSWORD: ${ENV_SERVER_DB_PASSWORD}
+      POSTGRES_DB: ${ENV_SERVER_DB_DBNAME}
     ports:
       - "5432:5432"
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - db-data-backend:/var/lib/postgresql/data
     healthcheck:
-        test: ["CMD-SHELL", "pg_isready"]
-        timeout: 5s
-        interval: 10s
-        retries: 30
-    secrets:
-        - postgres_username
-        - postgres_password
-        - postgres_db_name
-secrets:
-  postgres_username:
-    environment: ENV_POSTGRES_USERNAME
-  postgres_password: 
-    environment: ENV_POSTGRES_PASSWORD
-  postgres_db_name: 
-    environment: ENV_POSTGRES_DBNAME
+      test: ["CMD-SHELL", "pg_isready"]
+      timeout: 5s
+      interval: 10s
+      retries: 30
+    networks:
+      - external_net
+
+  # Keycloak PostgreSQL database
+  postgres_keycloak:
+    image: postgres:14.1-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${ENV_KEYCLOAK_DB_USERNAME}
+      POSTGRES_PASSWORD: ${ENV_KEYCLOAK_DB_PASSWORD}
+      POSTGRES_DB: ${ENV_KEYCLOAK_DB_DBNAME}
+    volumes:
+      - db-data-keycloak:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      timeout: 5s
+      interval: 10s
+      retries: 30
+    networks:
+      - internal_net
+      - external_net
+
+  # Keycloak server
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    restart: unless-stopped
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres_keycloak
+      KC_DB_URL_DATABASE: ${ENV_KEYCLOAK_DB_DBNAME}
+      # This is because by default PostgreSQL database docker image expose the database on 5432 port
+      KC_DB_URL_PORT: 5432
+      KC_DB_USERNAME: ${ENV_KEYCLOAK_DB_USERNAME}
+      KC_DB_PASSWORD: ${ENV_KEYCLOAK_DB_PASSWORD}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${ENV_KEYCLOAK_ADMIN}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${ENV_KEYCLOAK_ADMIN_PASSWORD}
+    command: start
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres_keycloak:
+        condition: service_healthy
+    networks:
+      - internal_net
+      - external_net
+
+networks:
+  internal_net:
+    driver: bridge
+  external_net:
+    driver: bridge
+
 volumes:
-  db-data:
+  db-data-backend:
+  db-data-keycloak:

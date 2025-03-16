@@ -8,3 +8,12 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+  postgres_keycloak:
+    ports:
+      - "9432:5432"
+  keycloak:
+    environment:
+      # For production use TLS/HTTPS
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+    command: start-dev
