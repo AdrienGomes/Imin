@@ -14,7 +14,6 @@ try
 
     // configure postgres settings
     builder.Configuration.ConfigurePostgresSettings(builder.Environment.IsDevelopment());
-    builder.Services.Configure<string>(builder.Configuration.GetSection("PostgresSettings.SectionName"));
 
     // Add common services
     builder.Services.AddServices(builder.Configuration);
@@ -25,9 +24,13 @@ try
 
     var app = builder.Build();
 
-    // execute bootstrap service
-    foreach (var bootstrap in app.Services.GetServices<IAppBootstrapService>())
-        await bootstrap.DoAsync();
+    // Create a scope to resolve scoped services
+    using (var scope = app.Services.CreateScope())
+    {
+        // execute bootstrap service
+        foreach (var bootstrap in scope.ServiceProvider.GetServices<IAppBootstrapService>())
+            await bootstrap.DoAsync();
+    }
 
     // Configure the HTTP request pipeline.
 

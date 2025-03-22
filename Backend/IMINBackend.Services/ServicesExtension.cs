@@ -23,7 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services
                 .Configure<PostgresSettings>(configuration.GetSection(PostgresSettings.SectionName))
                 .ConfigureDbContext(configuration)
-                .AddBootstrapServices(configuration)
+                .AddBootstrapServices()
                 ;
             return services;
         }
@@ -33,11 +33,11 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <remarks>
         /// This registration must be done right after app builder creation</remarks>
-        static IServiceCollection AddBootstrapServices(this IServiceCollection services, IConfiguration configuration)
+        static IServiceCollection AddBootstrapServices(this IServiceCollection services)
         {
             services
                 // db bootstrap serice
-                .AddSingleton<IAppBootstrapService, DbBootstrapService>()
+                .AddScoped<IAppBootstrapService, DbBootstrapService>()
                 ;
             return services;
         }
@@ -51,7 +51,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var postgresSettings = configuration.GetPostgresSettings();
             services.AddDbContext<IminDbContext>(
                 option => option.UseNpgsql(postgresSettings.GetConnectionString()),
-                contextLifetime: ServiceLifetime.Singleton
+                contextLifetime: ServiceLifetime.Scoped
                 );
             return services;
         }
