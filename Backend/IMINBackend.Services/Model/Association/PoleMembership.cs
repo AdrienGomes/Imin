@@ -25,9 +25,9 @@ public class PoleMembership : BaseIdendifiedElement
 
     [Required]
     /// <summary> The priority of the pole for the volunteer </summary>
-    public required string Priority { get; set; }
+    public required int Priority { get; set; }
 
-    [EnumDataType(typeof(PoleStatus))]
+    [EnumDataType(typeof(PoleVolunteerStatus))]
     [Column(TypeName = "varchar(30)")]
-    public required PoleStatus Status { get; set; }
+    public required PoleVolunteerStatus MembershipStatus { get; set; }
 }

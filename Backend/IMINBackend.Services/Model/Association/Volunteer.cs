@@ -21,7 +21,7 @@ public class Volunteer : BaseIdendifiedElement
     public required DateTime LastInscriptionDate { get; set; }
 
     /// <summary> The date of the last distribution of the volunteer </summary>
-    public DateTime? LastDistribution { get; set; }
+    public DateTime? LastDistributionDate { get; set; }
 
     /// <summary> The pole memberships of the volunteer </summary>
     public IEnumerable<PoleMembership> PoleMemberships { get; set; } = [];
