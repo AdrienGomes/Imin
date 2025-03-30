@@ -1,4 +1,4 @@
-# [13](https://github.com/users/AdrienGomes/projects/6/views/1?pane=issue&itemId=94650239&issue=AdrienGomes%7CImin%7C13) - Adding the User/AccessAccount model
+# [13](https://github.com/AdrienGomes/Imin/issues/13) - Adding the User/AccessAccount model
 
 | Date | Name | Action |
 |:----:|:----:|:------:|
