@@ -60,7 +60,7 @@ These variables are used to connect to the database. For _developpement_ a `.env
     
 No ports are exposed for the server, it is only accessible from the network. The `docker-compose.override.yaml` exposes the server on port 8080 for _developpement_ purposes. 
 The server is dependent on the database, it will only start if the database is healthy.
-## Implementation - [16]()
+## Implementation - [16](https://github.com/AdrienGomes/Imin/pull/17)
 
 ## Test
 - [X] Developpement server up and running
