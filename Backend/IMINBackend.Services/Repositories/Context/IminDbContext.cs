@@ -27,6 +27,15 @@ public class IminDbContext(DbContextOptions<IminDbContext> options) : DbContext(
     /// <summary> The "Pole" table </summary>
     public DbSet<Pole> Poles { get; set; }
 
+    /// <summary> The "Distribution" table </summary>
+    public DbSet<Distribution> Distributions { get; set; }
+
+    /// <summary> The "DistributionEnlistement" table </summary>
+    public DbSet<DistributionEnlistement> DistributionEnlistements { get; set; }
+
+    /// <summary> The "PoleDistributionEnlistement" table </summary>
+    public DbSet<PoleDistributionEnlistement> PoleDistributionEnlistements { get; set; }
+
     #endregion
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -61,6 +70,48 @@ public class IminDbContext(DbContextOptions<IminDbContext> options) : DbContext(
             .WithOne(u => u.Volunteer)
             .HasForeignKey<Volunteer>(v => v.UserId)
             .IsRequired(false);
+
+        // Distribution -> Volunteer
+        modelBuilder.Entity<Distribution>()
+            .HasOne(d => d.Publisher)
+            .WithMany()
+            .HasForeignKey(d => d.PublisherId)
+            .IsRequired();
+
+        // DistributionEnlistement -> Distribution
+        modelBuilder.Entity<DistributionEnlistement>()
+            .HasOne(de => de.Distribution)
+            .WithMany()
+            .HasForeignKey(de => de.DistributionId)
+            .IsRequired();
+
+        // DistributionEnlistement -> Volunteer
+        modelBuilder.Entity<DistributionEnlistement>()
+            .HasOne(de => de.Volunteer)
+            .WithMany()
+            .HasForeignKey(de => de.VolunteerId)
+            .IsRequired();
+
+        // DistributionEnlistement -> Pole
+        modelBuilder.Entity<DistributionEnlistement>()
+            .HasOne(de => de.Pole)
+            .WithMany()
+            .HasForeignKey(de => de.PoleId)
+            .IsRequired();
+
+        // PoleDistributionEnlistement -> Pole
+        modelBuilder.Entity<PoleDistributionEnlistement>()
+            .HasOne(pde => pde.Pole)
+            .WithMany()
+            .HasForeignKey(pde => pde.PoleId)
+            .IsRequired();
+
+        // PoleDistributionEnlistement -> Distribution
+        modelBuilder.Entity<PoleDistributionEnlistement>()
+            .HasOne(pde => pde.Distribution)
+            .WithMany()
+            .HasForeignKey(pde => pde.DistributionId)
+            .IsRequired();
 
         base.OnModelCreating(modelBuilder);
     }

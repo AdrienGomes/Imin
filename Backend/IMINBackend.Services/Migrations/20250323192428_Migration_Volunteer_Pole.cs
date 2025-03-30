@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -64,7 +63,7 @@ namespace IMINBackend.Services.Migrations
                     Id = table.Column<string>(type: "text", nullable: false),
                     PoleId = table.Column<string>(type: "text", nullable: false),
                     VolunteerId = table.Column<string>(type: "text", nullable: false),
-                    Priority = table.Column<string>(type: "text", nullable: false),
+                    Priority = table.Column<int>(type: "integer", nullable: false),
                     Status = table.Column<string>(type: "varchar(30)", nullable: false),
                     VolunteerId1 = table.Column<string>(type: "text", nullable: true)
                 },
