@@ -1,4 +1,4 @@
-# [$Issue number$](link) - Adding the User/AccessAccount model
+# [13](https://github.com/AdrienGomes/Imin/issues/13) - Adding the User/AccessAccount model
 
 | Date | Name | Action |
 |:----:|:----:|:------:|
@@ -12,7 +12,7 @@ _Keywords :_ Database, user, model, migration
 
 ## Analysis
 
-## Implementation - [PRNumber]
+## Implementation
 
 - Add `AccessAccount` model class.
 - Add `User` model class.
